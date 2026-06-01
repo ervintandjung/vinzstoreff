@@ -344,7 +344,7 @@ footer{border-top:1px solid var(--border);padding:16px;text-align:center;color:v
 <div class="notif" id="notif"></div>
 
 <!-- ===== AUTH OVERLAY ===== -->
-<div class="ov" id="auth-ov" onclick="if(e=>e.target===document.getElementById('auth-ov'))closeAuth()">
+<div class="ov" id="auth-ov" onclick="if(event.target===this)closeAuth()">
   <div class="sheet" id="auth-sheet">
     <div class="handle"></div>
 
