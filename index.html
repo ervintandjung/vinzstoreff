@@ -473,12 +473,12 @@ footer{border-top:1px solid var(--border);padding:16px;text-align:center;color:v
     <span class="db-dot badge-load" id="db-dot">● ...</span>
   </div>
   <div class="adm-tabs">
-    <button class="adm-tab on" onclick="admTab('dashboard',this)">📊 Statistik</button>
-    <button class="adm-tab" onclick="admTab('accounts',this)">📋 Akun</button>
-    <button class="adm-tab" onclick="admTab('trx',this)">🧾 Transaksi</button>
-    <button class="adm-tab" onclick="admTab('add',this)">➕ Tambah</button>
-    <button class="adm-tab" onclick="admTab('ui',this)">🎨 Tampilan</button>
-    <button class="adm-tab" onclick="admTab('wa',this)">📱 WhatsApp</button>
+    <button class="adm-tab on" onclick="admTab('dashboard',this)">Statistik</button>
+    <button class="adm-tab" onclick="admTab('accounts',this)">Akun</button>
+    <button class="adm-tab" onclick="admTab('trx',this)">Transaksi</button>
+    <button class="adm-tab" onclick="admTab('add',this)">Tambah</button>
+    <button class="adm-tab" onclick="admTab('ui',this)">Tampilan</button>
+    <button class="adm-tab" onclick="admTab('wa',this)">WhatsApp</button>
   </div>
   <div class="panel-body">
     <!-- Dashboard -->
@@ -524,6 +524,7 @@ footer{border-top:1px solid var(--border);padding:16px;text-align:center;color:v
       <div class="adm-sec">
         <div class="adm-sec-title">Info Akun</div>
         <input class="adm-inp" id="a-name" placeholder="Nama akun (misal: Akun Sultan OG)">
+        <textarea class="adm-inp" id="a-desc" rows="3" style="resize:vertical;" placeholder="Deskripsi akun (contoh: Akun rare, full skin, sudah terhubung Google)"></textarea>
         <div class="g2">
           <input class="adm-inp" id="a-price" type="number" placeholder="Harga jual">
           <input class="adm-inp" id="a-orig" type="number" placeholder="Harga asli (coret)">
@@ -1559,6 +1560,7 @@ function togPay(p) {
 
 async function doAddAkun() {
   const name  = document.getElementById('a-name')?.value.trim();
+  const desc  = document.getElementById('a-desc')?.value.trim();
   const price = parseInt(document.getElementById('a-price')?.value)||0;
   const orig  = parseInt(document.getElementById('a-orig')?.value)||0;
   const level = parseInt(document.getElementById('a-level')?.value)||0;
@@ -1572,7 +1574,7 @@ async function doAddAkun() {
   const btn = document.getElementById('btn-submit-akun');
   btn.disabled = true; btn.textContent = '⏳ Menyimpan...';
   const r = await sb('ff_accounts', { method:'POST', body:JSON.stringify({
-    name, price, original_price:orig, level, diamonds, skins, rank,
+    name, description:desc, price, original_price:orig, level, diamonds, skins, rank,
     email, password:pass, security_code:sec,
     photos: admPhotos.filter(Boolean),
     payment_options: selPays,
@@ -1581,7 +1583,7 @@ async function doAddAkun() {
   if (!r) { btn.disabled=false; btn.textContent='TAMBAH AKUN'; notif('❌ Gagal simpan!'); return; }
   btn.classList.add('ok'); btn.textContent='✅ BERHASIL!';
   // Reset form
-  ['a-name','a-price','a-orig','a-level','a-diamonds','a-skins','a-rank','a-email','a-pass','a-security'].forEach(id=>{
+  ['a-name','a-desc','a-price','a-orig','a-level','a-diamonds','a-skins','a-rank','a-email','a-pass','a-security'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.value='';
   });
   admPhotos=[]; renderPhotoFields();
