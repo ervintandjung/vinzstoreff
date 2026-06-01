@@ -469,7 +469,7 @@ footer{border-top:1px solid var(--border);padding:16px;text-align:center;color:v
 <div class="panel" id="admin-panel">
   <div class="panel-hdr gold">
     <button class="back-btn" onclick="document.getElementById('admin-panel').classList.remove('open')">←</button>
-    <span class="panel-title" style="color:var(--gold)">⚙️ ADMIN PANEL</span>
+    <span class="panel-title" style="color:var(--gold)">ADMIN PANEL</span>
     <span class="db-dot badge-load" id="db-dot">● ...</span>
   </div>
   <div class="adm-tabs">
@@ -686,9 +686,9 @@ function renderHdr() {
         <div class="ava${isSA?' sa':''}" onclick="toggleDD()">${init}</div>
         <div class="ava-dd" id="ava-dd">
           <div class="dd-head"><strong>${user.name}</strong><span>${user.email}</span></div>
-          <button class="dd-btn" onclick="openUserPanel()">👤 Profil & Riwayat</button>
-          ${isSA ? `<button class="dd-btn gold" onclick="openAdminPanel()">⚙️ Admin Panel</button>` : ''}
-          <button class="dd-btn red" onclick="doLogout()">🚪 Keluar</button>
+          <button class="dd-btn" onclick="openUserPanel()">Profil & Riwayat</button>
+          ${isSA ? `<button class="dd-btn gold" onclick="openAdminPanel()">Admin Panel</button>` : ''}
+          <button class="dd-btn red" onclick="doLogout()">Keluar</button>
         </div>
       </div>`;
   }
