@@ -7,10 +7,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script>
-// Supabase JS akan diinisialisasi setelah DOM ready
-window._supabaseReady = false;
-</script>
 <style>
 :root {
   --bg: #07111f;
@@ -124,7 +120,6 @@ footer{border-top:1px solid var(--border);padding:16px;text-align:center;color:v
 
 /* OVERLAY */
 .ov{display:none;position:fixed;inset:0;background:rgba(2,8,20,0.85);z-index:300;backdrop-filter:blur(5px);align-items:flex-end;justify-content:center;}
-.ov.open{display:flex;}
 .ov.open{display:flex;}
 
 /* SHEET */
@@ -604,7 +599,6 @@ const EJS_TPL  = 'template_eh0gt7b';
 const SA_EMAIL = 'alpintandjung@gmail.com';
 
 const WORKER_URL = 'https://qris-gateway.vinzprostore.workers.dev';
-
 const PM = {
   qris: { name:'QRIS (GoPay, OVO, Dana, dll)', icon:'💳', desc:'Otomatis · Konfirmasi instan' },
   wa:   { name:'WhatsApp Manual', icon:'📱', desc:'Konfirmasi bayar via WA Admin' },
@@ -625,33 +619,6 @@ try { emailjs.init({ publicKey: EJS_PUB }); } catch(e){}
 // ============================================================
 // SUPABASE
 // ============================================================
-// Supabase Auth client (untuk JWT QRIS)
-let supabase = null;
-
-function initSupabase() {
-  try {
-    if (window.supabase && window.supabase.createClient) {
-      supabase = window.supabase.createClient(SB_URL, SB_KEY);
-    }
-  } catch(e) {}
-  if (!supabase) {
-    // Fallback mock
-    supabase = {
-      auth: {
-        getSession: async () => ({ data: { session: null } }),
-        signInWithPassword: async () => ({ data: null, error: new Error('no client') }),
-        signUp: async () => ({ data: null, error: null }),
-      },
-      channel: () => ({ on: () => ({ subscribe: () => {} }) }),
-      removeChannel: () => {}
-    };
-  }
-}
-
-// Init segera dan juga saat DOMContentLoaded
-initSupabase();
-document.addEventListener('DOMContentLoaded', initSupabase);
-
 async function sb(path, opts={}) {
   const method = (opts.method||'GET').toUpperCase();
   const headers = {
@@ -786,19 +753,20 @@ async function doLogin() {
     if (data[0].password !== pass) { showErr('err-masuk','Password salah!'); return; }
     user = { email, name: data[0].name, pass };
     localStorage.setItem('ff_user', JSON.stringify(user));
-    closeAuth();
-    renderHdr();
+    closeAuth(); renderHdr();
     notif('✅ Selamat datang, ' + user.name + '!');
-    // Sign-in ke Supabase Auth di background (untuk JWT QRIS)
-    (async () => {
+    // Sign-in Supabase Auth background (untuk JWT QRIS)
+    setTimeout(async () => {
       try {
-        const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+        const supa = getSupa();
+        if (!supa) return;
+        const { error } = await supa.auth.signInWithPassword({ email, password: pass });
         if (error) {
-          await supabase.auth.signUp({ email, password: pass, options: { data: { username: data[0].name }, emailRedirectTo: null } });
-          await supabase.auth.signInWithPassword({ email, password: pass });
+          await supa.auth.signUp({ email, password: pass, options: { data:{username:data[0].name}, emailRedirectTo:null } });
+          await supa.auth.signInWithPassword({ email, password: pass });
         }
       } catch(e) { console.warn('Auth bg:', e); }
-    })();
+    }, 500);
   } catch(e) {
     showErr('err-masuk', 'Error: ' + e.message);
   } finally {
@@ -1142,7 +1110,7 @@ function showLoginGate(a) {
 
 function showPaySheet(a) {
   selPayMethod = null;
-  const pays = (a.pays||['qris']).map(p => p==='xendit'||p==='duitku' ? 'qris' : p);
+  const pays = a.pays||['xendit'];
   const sheet = document.getElementById('pay-sheet');
   sheet.innerHTML = `
     <div class="handle"></div>
@@ -1173,6 +1141,14 @@ function selPay(p) {
   document.getElementById('btn-pay').disabled = false;
 }
 
+// ── Supabase Auth (untuk JWT QRIS) ──
+let _supa = null;
+function getSupa() {
+  if (_supa) return _supa;
+  try { _supa = window.supabase?.createClient(SB_URL, SB_KEY) || null; } catch(e) {}
+  return _supa;
+}
+
 async function doPayment() {
   if (!selPayMethod || !buyAcc) return;
 
@@ -1193,173 +1169,133 @@ async function doPayment() {
   }
 }
 
-// ── QRIS qris.pw Payment ──
-let _qrisOrderId = null, _qrisTimerId = null, _qrisPollId = null, _qrisChannel = null;
+let _qrisTimerId = null, _qrisPollId = null, _qrisOrderId = null, _qrisChannel = null;
 
 async function doQrisPayment() {
   const sheet = document.getElementById('pay-sheet');
+  const amount = buyAcc.price || 0;
+  const supa = getSupa();
 
-  // Ambil Supabase Auth session untuk JWT (retry 5x)
+  // Ambil session JWT (retry 5x)
   let session = null;
   for (let i = 0; i < 5; i++) {
-    try {
-      const { data } = await supabase.auth.getSession();
-      session = data.session;
-      if (session) break;
-    } catch(e) {}
+    try { const r = await supa?.auth.getSession(); session = r?.data?.session; if (session) break; } catch(e) {}
     if (i < 4) await new Promise(r => setTimeout(r, 1000));
   }
-  if (!session) {
-    // Auto sign-in ke Supabase Auth dulu
+  // Kalau belum ada, auto sign-in
+  if (!session && user?.email && user?.pass) {
     try {
-      await supabase.auth.signInWithPassword({ email: user.email, password: user.pass || '' });
-      const { data } = await supabase.auth.getSession();
-      session = data.session;
+      await supa?.auth.signInWithPassword({ email: user.email, password: user.pass });
+      const r = await supa?.auth.getSession();
+      session = r?.data?.session;
     } catch(e) {}
-    if (!session) { notif('⚠️ Sesi habis, silakan login ulang'); return; }
   }
+  if (!session) { notif('⚠️ Sesi habis, login ulang dulu'); return; }
 
-  // Tampilkan loading
   sheet.innerHTML = `<div class="handle"></div>
     <div style="text-align:center;padding:30px 0">
       <div class="spin" style="margin:0 auto 12px"></div>
-      <div style="font-family:'Orbitron',sans-serif;font-size:12px;color:var(--muted)">Membuat QRIS...</div>
+      <div style="font-size:12px;color:var(--muted)">Membuat QRIS...</div>
     </div>`;
 
-  const amount = buyAcc.price || 0;
-  const trxCode = genTrxCode();
-
-  // Buat order QRIS via Worker
   let orderData;
   try {
-    const res = await fetch(`${WORKER_URL}/create-qris`, {
+    const res = await fetch(WORKER_URL + '/create-qris', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
       body: JSON.stringify({ amount, product_id: String(buyAcc.id), customer_name: user.name || user.email })
     });
     orderData = await res.json();
     if (!res.ok) throw new Error(orderData.error || 'Gagal buat QRIS');
   } catch(e) {
-    sheet.innerHTML = `<div class="handle"></div><div style="text-align:center;padding:20px;color:var(--danger)">${e.message}</div>`;
+    sheet.innerHTML = `<div class="handle"></div><div style="text-align:center;padding:20px;color:var(--danger)">❌ ${e.message}</div>`;
     return;
   }
 
   _qrisOrderId = orderData.order_id;
-
-  // Simpan transaksi MENUNGGU
   await sb('ff_transactions', { method:'POST', body:JSON.stringify({
     user_email: user.email, account_id: buyAcc.id, account_name: buyAcc.name,
     price: amount, method: 'qris', status: 'MENUNGGU', trx_code: _qrisOrderId
   })});
 
-  // Tampilkan QR
   let sisa = orderData.expires_in || 600;
-  function fmtTime(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+  const fmt = s => String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
 
-  function renderQrSheet() {
-    sheet.innerHTML = `<div class="handle"></div>
-      <div style="text-align:center;margin-bottom:12px">
-        <div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;margin-bottom:4px">💳 SCAN QRIS</div>
-        <div style="font-size:11px;color:var(--muted)">Bayar pakai GoPay, OVO, Dana, dll</div>
-      </div>
-      <div style="background:#fff;border-radius:14px;padding:14px;margin:0 auto 12px;width:fit-content">
-        <img src="${orderData.qris_url}" style="width:220px;height:220px;display:block;" />
-      </div>
-      <div style="text-align:center;margin-bottom:10px">
-        <div style="font-size:11px;color:var(--muted)">Sisa waktu</div>
-        <div id="qr-timer" style="font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--accent2)">${fmtTime(sisa)}</div>
-      </div>
-      <div style="background:var(--card);border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;margin-bottom:12px">
-        <span style="color:var(--muted);font-size:12px">${buyAcc.name}</span>
-        <span style="color:var(--gold);font-weight:900;font-family:'Orbitron',sans-serif">Rp${amount.toLocaleString('id')}</span>
-      </div>
-      <div style="text-align:center;font-size:11px;color:var(--muted)">⏳ Menunggu pembayaran... otomatis terverifikasi</div>`;
+  sheet.innerHTML = `<div class="handle"></div>
+    <div style="text-align:center;margin-bottom:12px">
+      <div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;margin-bottom:4px">💳 SCAN QRIS</div>
+      <div style="font-size:11px;color:var(--muted)">GoPay · OVO · Dana · dll</div>
+    </div>
+    <div style="background:#fff;border-radius:14px;padding:14px;margin:0 auto 12px;width:fit-content">
+      <img src="${orderData.qris_url}" style="width:220px;height:220px;display:block;" />
+    </div>
+    <div style="text-align:center;margin-bottom:10px">
+      <div style="font-size:11px;color:var(--muted)">Sisa waktu</div>
+      <div id="qr-timer" style="font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--accent2)">${fmt(sisa)}</div>
+    </div>
+    <div style="background:var(--card);border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;margin-bottom:8px">
+      <span style="color:var(--muted);font-size:12px">${buyAcc.name}</span>
+      <span style="color:var(--gold);font-weight:900;font-family:'Orbitron',sans-serif">Rp${amount.toLocaleString('id')}</span>
+    </div>
+    <div style="text-align:center;font-size:11px;color:var(--muted)">⏳ Menunggu pembayaran... otomatis terverifikasi</div>`;
 
-    // Timer countdown
-    if (_qrisTimerId) clearInterval(_qrisTimerId);
-    _qrisTimerId = setInterval(() => {
-      sisa--;
-      const el = document.getElementById('qr-timer');
-      if (el) el.textContent = fmtTime(Math.max(0, sisa));
-      if (sisa <= 0) {
-        clearInterval(_qrisTimerId);
-        clearInterval(_qrisPollId);
-        notif('⚠️ Waktu QRIS habis');
-        sheet.innerHTML = `<div class="handle"></div>
-          <div style="text-align:center;padding:20px">
-            <div style="font-size:36px;margin-bottom:10px">⏰</div>
-            <div style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--danger)">QRIS KADALUWARSA</div>
-            <button class="btn-main" style="margin-top:16px" onclick="document.getElementById('pay-ov').classList.remove('open')">TUTUP</button>
-          </div>`;
-      }
-    }, 1000);
-  }
-  renderQrSheet();
+  if (_qrisTimerId) clearInterval(_qrisTimerId);
+  _qrisTimerId = setInterval(() => {
+    sisa--;
+    const el = document.getElementById('qr-timer');
+    if (el) el.textContent = fmt(Math.max(0, sisa));
+    if (sisa <= 0) {
+      clearInterval(_qrisTimerId);
+      if (_qrisPollId) clearInterval(_qrisPollId);
+      sheet.innerHTML = `<div class="handle"></div>
+        <div style="text-align:center;padding:20px">
+          <div style="font-size:36px;margin-bottom:10px">⏰</div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--danger)">QRIS KADALUWARSA</div>
+          <button class="btn-main" style="margin-top:16px" onclick="document.getElementById('pay-ov').classList.remove('open')">TUTUP</button>
+        </div>`;
+    }
+  }, 1000);
 
-  // Polling cek status setiap 4 detik
   let paid = false;
   if (_qrisPollId) clearInterval(_qrisPollId);
   _qrisPollId = setInterval(async () => {
     if (paid) { clearInterval(_qrisPollId); return; }
     try {
-      // Cek di Supabase orders
-      const rows = await sb(`orders?order_id=eq.${_qrisOrderId}&select=status,amount`, { method:'GET' });
-      const order = rows?.[0];
-      if (order?.status === 'paid') {
-        paid = true;
-        clearInterval(_qrisPollId);
-        clearInterval(_qrisTimerId);
-        await onQrisPaid();
-        return;
-      }
-      // Fallback cek langsung ke qris.pw via Worker
+      const rows = await sb('orders?order_id=eq.'+_qrisOrderId+'&select=status');
+      if (rows?.[0]?.status === 'paid') { paid = true; clearInterval(_qrisPollId); clearInterval(_qrisTimerId); await onQrisPaid(); return; }
       if (orderData.transaction_id) {
-        const r = await fetch(`${WORKER_URL}/check-qris?transaction_id=${encodeURIComponent(orderData.transaction_id)}`);
+        const r = await fetch(WORKER_URL+'/check-qris?transaction_id='+encodeURIComponent(orderData.transaction_id));
         const d = await r.json();
         const st = String(d.status||d.payment_status||'').toLowerCase();
-        if (st === 'paid' || st === 'success' || st === 'settlement') {
-          // Update Supabase orders status
-          await fetch(`${SB_URL}/rest/v1/orders?order_id=eq.${_qrisOrderId}&status=eq.pending`, {
-            method: 'PATCH',
-            headers: { 'Content-Type':'application/json', apikey: SB_KEY, Authorization:`Bearer ${SB_KEY}` },
-            body: JSON.stringify({ status:'paid', paid_at: new Date().toISOString() })
+        if (st==='paid'||st==='success'||st==='settlement') {
+          await fetch(SB_URL+'/rest/v1/orders?order_id=eq.'+_qrisOrderId+'&status=eq.pending', {
+            method:'PATCH', headers:{'Content-Type':'application/json',apikey:SB_KEY,Authorization:'Bearer '+SB_KEY},
+            body: JSON.stringify({status:'paid',paid_at:new Date().toISOString()})
           });
         }
       }
-    } catch(e){}
+    } catch(e) {}
   }, 4000);
 
-  // Realtime Supabase
   try {
-    if (_qrisChannel) supabase.removeChannel(_qrisChannel);
-    _qrisChannel = supabase.channel('ff-orders-'+_qrisOrderId)
-      .on('postgres_changes', { event:'UPDATE', schema:'public', table:'orders', filter:`order_id=eq.${_qrisOrderId}` }, async (payload) => {
-        if (payload.new.status === 'paid' && !paid) {
-          paid = true;
-          clearInterval(_qrisPollId);
-          clearInterval(_qrisTimerId);
-          await onQrisPaid();
-        }
-      }).subscribe();
-  } catch(e){}
+    if (_qrisChannel && supa) supa.removeChannel(_qrisChannel);
+    if (supa) {
+      _qrisChannel = supa.channel('ff-ord-'+_qrisOrderId)
+        .on('postgres_changes',{event:'UPDATE',schema:'public',table:'orders',filter:'order_id=eq.'+_qrisOrderId}, async p => {
+          if (p.new.status==='paid' && !paid) { paid=true; clearInterval(_qrisPollId); clearInterval(_qrisTimerId); await onQrisPaid(); }
+        }).subscribe();
+    }
+  } catch(e) {}
 }
 
 async function onQrisPaid() {
   const sheet = document.getElementById('pay-sheet');
-
-  // Update transaksi jadi SUKSES
-  await sb(`ff_transactions?trx_code=eq.${_qrisOrderId}`, { method:'PATCH', body:JSON.stringify({ status:'SUKSES' }) });
-  // Mark akun sold
-  await sb(`ff_accounts?id=eq.${buyAcc.id}`, { method:'PATCH', body:JSON.stringify({sold:true}), prefer:'return=minimal' });
-  buyAcc.sold = true;
-  renderAccounts(); renderHdr();
-
-  // Ambil kredensial akun
-  const creds = await sb(`ff_accounts?id=eq.${buyAcc.id}&select=email,password,security_code`);
+  await sb('ff_transactions?trx_code=eq.'+_qrisOrderId, {method:'PATCH', body:JSON.stringify({status:'SUKSES'})});
+  await sb('ff_accounts?id=eq.'+buyAcc.id, {method:'PATCH', body:JSON.stringify({sold:true}), prefer:'return=minimal'});
+  buyAcc.sold = true; renderAccounts(); renderHdr();
+  const creds = await sb('ff_accounts?id=eq.'+buyAcc.id+'&select=email,password,security_code');
   const c = creds?.[0]||{};
-
-  sheet.innerHTML = `
-    <div class="handle"></div>
+  sheet.innerHTML = `<div class="handle"></div>
     <div style="text-align:center;margin-bottom:20px">
       <div style="font-size:48px;margin-bottom:10px">✅</div>
       <div style="font-family:'Orbitron',sans-serif;font-size:14px;font-weight:900;color:var(--success)">PEMBAYARAN SUKSES!</div>
@@ -1371,8 +1307,7 @@ async function onQrisPaid() {
     ${infoRow('Password', c.password||'-')}
     ${infoRowMulti('Kode Keamanan', c.security_code||'-')}
     <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:14px;line-height:1.6">Simpan data ini baik-baik!<br>Screenshot halaman ini sekarang.</div>
-    <button class="btn-main" style="margin-top:16px" onclick="document.getElementById('pay-ov').classList.remove('open')">TUTUP</button>
-  `;
+    <button class="btn-main" style="margin-top:16px" onclick="document.getElementById('pay-ov').classList.remove('open')">TUTUP</button>`;
   notif('✅ Pembayaran berhasil!');
 }
 
