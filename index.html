@@ -7,7 +7,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script>const supabaseJs = window.supabase;</script>
+<script>
+// Supabase JS akan diinisialisasi setelah DOM ready
+window._supabaseReady = false;
+</script>
 <style>
 :root {
   --bg: #07111f;
@@ -338,7 +341,7 @@ footer{border-top:1px solid var(--border);padding:16px;text-align:center;color:v
 
 <footer>
   <p style="font-family:'Orbitron',sans-serif;font-size:10px">FF STORE — Jual akun Free Fire terpercaya</p>
-  <p style="margin-top:4px">Xendit QRIS • Duitku • WhatsApp Manual</p>
+  <p style="margin-top:4px">QRIS Otomatis • WhatsApp Manual</p>
 </footer>
 </div><!-- /app -->
 
@@ -623,21 +626,30 @@ try { emailjs.init({ publicKey: EJS_PUB }); } catch(e){}
 // ============================================================
 // Supabase Auth client (untuk JWT QRIS)
 let supabase = null;
-try {
-  const { createClient } = supabaseJs;
-  supabase = createClient(SB_URL, SB_KEY);
-} catch(e) {
-  // Fallback: mock auth
-  supabase = {
-    auth: {
-      getSession: async () => ({ data: { session: null } }),
-      signInWithPassword: async () => ({ data: null, error: new Error('no client') }),
-      signUp: async () => ({ data: null, error: null }),
-    },
-    channel: () => ({ on: () => ({ subscribe: () => {} }) }),
-    removeChannel: () => {}
-  };
+
+function initSupabase() {
+  try {
+    if (window.supabase && window.supabase.createClient) {
+      supabase = window.supabase.createClient(SB_URL, SB_KEY);
+    }
+  } catch(e) {}
+  if (!supabase) {
+    // Fallback mock
+    supabase = {
+      auth: {
+        getSession: async () => ({ data: { session: null } }),
+        signInWithPassword: async () => ({ data: null, error: new Error('no client') }),
+        signUp: async () => ({ data: null, error: null }),
+      },
+      channel: () => ({ on: () => ({ subscribe: () => {} }) }),
+      removeChannel: () => {}
+    };
+  }
 }
+
+// Init segera dan juga saat DOMContentLoaded
+initSupabase();
+document.addEventListener('DOMContentLoaded', initSupabase);
 
 async function sb(path, opts={}) {
   const method = (opts.method||'GET').toUpperCase();
