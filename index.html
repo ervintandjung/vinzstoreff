@@ -554,8 +554,7 @@ footer{border-top:1px solid var(--border);padding:16px;text-align:center;color:v
       <div class="adm-sec">
         <div class="adm-sec-title">Metode Pembayaran</div>
         <div class="g3" id="pay-toggles">
-          <div class="pay-tog on" id="tog-xendit" onclick="togPay('xendit')">💳 QRIS</div>
-          <div class="pay-tog" id="tog-duitku" onclick="togPay('duitku')">🏦 Duitku</div>
+          <div class="pay-tog on" id="tog-qris" onclick="togPay('qris')">💳 QRIS</div>
           <div class="pay-tog" id="tog-wa" onclick="togPay('wa')">📱 WA</div>
         </div>
       </div>
@@ -613,7 +612,7 @@ const PM = {
 let accounts = [], filter = 'all', user = null;
 let otpCode='', otpEmail='', otpPending=null;
 let rstCode='', rstEmail='';
-let selPays = ['xendit'], photoFields = [];
+let selPays = ['qris'], photoFields = [];
 let buyAcc = null, selPayMethod = null;
 
 try { user = JSON.parse(localStorage.getItem('ff_user')||'null'); } catch(e){}
