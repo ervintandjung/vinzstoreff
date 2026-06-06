@@ -28,7 +28,43 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;mi
 button{cursor:pointer;}
 input,button{font-family:'Rajdhani',sans-serif;}
 
-/* SCROLLBAR */
+/* QRIS FULLSCREEN MODAL */
+#qris-fs-modal{display:none;position:fixed;inset:0;z-index:9999;background:#0a1226;overflow-y:auto;font-family:'Rajdhani',sans-serif;color:#fff;}
+#qris-fs-modal.open{display:block;}
+.qfs-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:#0a1226;position:sticky;top:0;z-index:5;border-bottom:1px solid rgba(255,255,255,.06);}
+.qfs-brand{display:flex;align-items:center;gap:10px;font-family:'Orbitron',sans-serif;font-style:italic;font-weight:900;font-size:16px;letter-spacing:1px;}
+.qfs-logo{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-weight:900;font-size:11px;color:#fff;}
+.qfs-close{background:rgba(255,255,255,.08);border:none;color:#fff;width:36px;height:36px;border-radius:9px;font-size:18px;cursor:pointer;}
+.qfs-hero{margin:12px 16px 14px;border-radius:20px;padding:32px 20px;text-align:center;background:linear-gradient(180deg,#1a6fff,#1559d6);}
+.qfs-hero-ok{background:linear-gradient(180deg,#10b981,#059669);}
+.qfs-icon{width:80px;height:80px;border-radius:20px;background:rgba(255,255,255,.18);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:38px;}
+.qfs-title{font-family:'Orbitron',sans-serif;font-style:italic;font-weight:900;font-size:26px;line-height:1.1;letter-spacing:1px;}
+.qfs-sub{margin-top:10px;font-size:11px;letter-spacing:3px;opacity:.85;font-weight:600;}
+.qfs-panel{margin:0 16px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:18px;}
+.qfs-lbl{font-size:11px;letter-spacing:2.5px;color:#7a8aa8;text-align:center;font-weight:700;}
+.qfs-timer-wrap{display:flex;justify-content:center;gap:8px;margin-top:12px;}
+.qfs-timer-wrap span{background:#0f1a35;border-radius:12px;padding:12px 20px;font-family:'Orbitron',sans-serif;font-weight:900;font-size:32px;min-width:72px;text-align:center;}
+.qfs-colon{display:flex;align-items:center;font-size:28px;font-weight:900;color:#7a8aa8;}
+.qfs-qr-box{background:#fff;border-radius:16px;padding:16px;margin:14px auto 0;width:fit-content;}
+.qfs-qr-box img{display:block;width:220px;height:220px;}
+.qfs-wait-txt{margin-top:16px;text-align:center;font-size:11px;letter-spacing:2px;color:#7a8aa8;line-height:1.8;font-weight:600;}
+.qfs-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#1a6fff;margin-right:6px;animation:qfsPulse 1s infinite;}
+@keyframes qfsPulse{0%,100%{opacity:.3}50%{opacity:1}}
+.qfs-total-box{margin:0 16px 14px;background:linear-gradient(180deg,#1a6fff,#1559d6);border-radius:16px;padding:16px 20px;text-align:center;}
+.qfs-total-lbl{font-size:11px;letter-spacing:2.5px;font-weight:700;opacity:.85;}
+.qfs-total-amt{font-family:'Orbitron',sans-serif;font-style:italic;font-weight:900;font-size:28px;margin-top:6px;}
+.qfs-meta{margin:0 16px 14px;display:flex;justify-content:space-between;padding:14px 4px;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);}
+.qfs-mk{font-size:11px;letter-spacing:2px;color:#7a8aa8;font-weight:700;}
+.qfs-mv{font-family:'Orbitron',sans-serif;font-style:italic;font-weight:800;font-size:12px;margin-top:4px;}
+.qfs-prod-card{margin:0 16px 16px;background:rgba(255,255,255,.04);border-radius:14px;padding:12px;display:flex;gap:12px;align-items:center;}
+.qfs-prod-emoji{width:56px;height:56px;border-radius:12px;background:#0f1a35;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+.qfs-prod-name{font-family:'Orbitron',sans-serif;font-style:italic;font-weight:800;font-size:13px;}
+.qfs-prod-sub{font-size:11px;letter-spacing:2px;color:#1a6fff;font-weight:700;margin-top:4px;}
+.qfs-key-box{margin:0 16px 14px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:16px;padding:16px;}
+.qfs-key-lbl{color:#10b981;font-family:'Orbitron',sans-serif;font-style:italic;font-weight:800;font-size:12px;letter-spacing:2px;}
+.qfs-key-val{font-size:13px;color:#10b981;word-break:break-all;background:rgba(16,185,129,.08);border-radius:8px;padding:8px 10px;margin-top:4px;}
+.qfs-copy-btn{background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.5);color:#10b981;font-family:'Orbitron',sans-serif;font-style:italic;font-weight:800;font-size:11px;padding:6px 12px;border-radius:10px;cursor:pointer;}
+.qfs-done-btn{display:block;width:calc(100% - 32px);margin:0 16px 20px;padding:16px;border-radius:14px;border:none;background:linear-gradient(135deg,#1a6fff,#1559d6);color:#fff;font-family:'Orbitron',sans-serif;font-style:italic;font-weight:800;font-size:13px;letter-spacing:2px;cursor:pointer;}
 ::-webkit-scrollbar{width:3px;}
 ::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px;}
 
@@ -1200,40 +1236,23 @@ async function doQrisPayment() {
   _qrisOid = orderData.order_id;
   await sb('ff_transactions', { method:'POST', body:JSON.stringify({ user_email:user.email, account_id:buyAcc.id, account_name:buyAcc.name, price:amount, method:'qris', status:'MENUNGGU', trx_code:_qrisOid }) });
 
+  // Tutup sheet biasa, buka fullscreen modal
+  document.getElementById('pay-ov').classList.remove('open');
+  showQrisFullscreen(orderData.qris_url, orderData.expires_in||600, buyAcc.name, amount, _qrisOid);
+
+  // Timer fullscreen
   let sisa = orderData.expires_in || 600;
-  const fmt = s => String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
-
-  sheet.innerHTML = `<div class="handle"></div>
-    <div style="text-align:center;margin-bottom:12px">
-      <div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;margin-bottom:4px">💳 SCAN QRIS</div>
-      <div style="font-size:11px;color:var(--muted)">GoPay · OVO · Dana · dll</div>
-    </div>
-    <div style="background:#fff;border-radius:14px;padding:14px;margin:0 auto 12px;width:fit-content">
-      <img src="${orderData.qris_url}" style="width:220px;height:220px;display:block;" />
-    </div>
-    <div style="text-align:center;margin-bottom:10px">
-      <div style="font-size:11px;color:var(--muted)">Sisa waktu</div>
-      <div id="qr-tmr" style="font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--accent2)">${fmt(sisa)}</div>
-    </div>
-    <div style="background:var(--card);border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;margin-bottom:8px">
-      <span style="color:var(--muted);font-size:12px">${buyAcc.name}</span>
-      <span style="color:var(--gold);font-weight:900;font-family:'Orbitron',sans-serif">Rp${amount.toLocaleString('id')}</span>
-    </div>
-    <div style="text-align:center;font-size:11px;color:var(--muted)">⏳ Menunggu pembayaran... otomatis terverifikasi</div>`;
-
   if (_qrisTmr) clearInterval(_qrisTmr);
   _qrisTmr = setInterval(() => {
     sisa--;
-    const el = document.getElementById('qr-tmr');
-    if (el) el.textContent = fmt(Math.max(0, sisa));
+    const mm = document.getElementById('qfs-min');
+    const ss = document.getElementById('qfs-sec');
+    if (mm) mm.textContent = String(Math.floor(Math.max(0,sisa)/60)).padStart(2,'0');
+    if (ss) ss.textContent = String(Math.max(0,sisa)%60).padStart(2,'0');
     if (sisa <= 0) {
       clearInterval(_qrisTmr); clearInterval(_qrisPoll);
-      sheet.innerHTML = `<div class="handle"></div>
-        <div style="text-align:center;padding:20px">
-          <div style="font-size:36px;margin-bottom:10px">⏰</div>
-          <div style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--danger)">QRIS KADALUWARSA</div>
-          <button class="btn-main" style="margin-top:16px" onclick="document.getElementById('pay-ov').classList.remove('open')">TUTUP</button>
-        </div>`;
+      closeQrisFs();
+      notif('⚠️ Waktu QRIS habis');
     }
   }, 1000);
 
@@ -1270,25 +1289,13 @@ async function doQrisPayment() {
 }
 
 async function onQrisPaid() {
-  const sheet = document.getElementById('pay-sheet');
   await sb('ff_transactions?trx_code=eq.'+_qrisOid, {method:'PATCH', body:JSON.stringify({status:'SUKSES'})});
   await sb('ff_accounts?id=eq.'+buyAcc.id, {method:'PATCH', body:JSON.stringify({sold:true}), prefer:'return=minimal'});
   buyAcc.sold = true; renderAccounts(); renderHdr();
   const creds = await sb('ff_accounts?id=eq.'+buyAcc.id+'&select=email,password,security_code');
   const c = creds?.[0]||{};
-  sheet.innerHTML = `<div class="handle"></div>
-    <div style="text-align:center;margin-bottom:20px">
-      <div style="font-size:48px;margin-bottom:10px">✅</div>
-      <div style="font-family:'Orbitron',sans-serif;font-size:14px;font-weight:900;color:var(--success)">PEMBAYARAN SUKSES!</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:6px">${buyAcc.name}</div>
-      <div class="trx-code">ID: ${_qrisOid}</div>
-    </div>
-    <div style="font-size:11px;color:var(--muted);font-family:'Orbitron',sans-serif;margin-bottom:8px">KREDENSIAL AKUN</div>
-    ${infoRow('Email', c.email||'-')}
-    ${infoRow('Password', c.password||'-')}
-    ${infoRowMulti('Kode Keamanan', c.security_code||'-')}
-    <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:14px;line-height:1.6">Simpan data ini baik-baik!<br>Screenshot halaman ini sekarang.</div>
-    <button class="btn-main" style="margin-top:16px" onclick="document.getElementById('pay-ov').classList.remove('open')">TUTUP</button>`;
+  // Tampilkan success di fullscreen modal
+  showQrisSuccess(_qrisOid, c.email||'', c.password||'', c.security_code||'');
   notif('✅ Pembayaran berhasil!');
 }
 
@@ -1328,6 +1335,38 @@ async function openUserPanel() {
 
   const trxData = await sb(`ff_transactions?user_email=eq.${encodeURIComponent(user.email)}&order=id.desc&limit=20`);
 
+  const renderTrxCard = t => {
+    const isPending = t.status === 'MENUNGGU';
+    const isQris = t.method === 'qris';
+    const statusColor = t.status==='SUKSES' ? 'var(--success)' : t.status==='DIBATALKAN' ? 'var(--danger)' : 'var(--gold)';
+    // Hitung sisa waktu dari created_at (10 menit)
+    let timerHtml = '';
+    let showBayar = false;
+    if (isPending && isQris) {
+      const created = t.created_at ? new Date(t.created_at).getTime() : 0;
+      const elapsed = Date.now() - created;
+      const sisaSec = Math.max(0, Math.floor((600000 - elapsed) / 1000));
+      if (sisaSec > 0) {
+        const mm = String(Math.floor(sisaSec/60)).padStart(2,'0');
+        const ss = String(sisaSec%60).padStart(2,'0');
+        timerHtml = `<div style="font-size:11px;color:var(--muted);margin-top:4px">⏱ Sisa: <span style="color:var(--accent2);font-family:'Orbitron',sans-serif;font-weight:700">${mm}:${ss}</span></div>`;
+        showBayar = true;
+      } else {
+        timerHtml = `<div style="font-size:11px;color:var(--danger);margin-top:4px">⚠️ QR kadaluwarsa</div>`;
+      }
+    }
+    return `<div class="trx" style="cursor:pointer" onclick="openTrxDetail(${JSON.stringify(t).replace(/"/g,'&quot;')})">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="trx-name">${t.account_name||'-'}</div>
+        <span style="font-size:10px;font-weight:800;color:${statusColor}">${t.status}</span>
+      </div>
+      <div class="trx-code">${t.trx_code||'-'}</div>
+      <div class="trx-sub">Rp${(t.price||0).toLocaleString('id')} • ${t.method?.toUpperCase()||'-'}</div>
+      ${timerHtml}
+      ${showBayar ? `<button onclick="event.stopPropagation();riwBayarQris('${t.trx_code}')" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--accent),#1559d6);color:#fff;font-family:'Orbitron',sans-serif;font-style:italic;font-weight:800;font-size:11px;letter-spacing:1px;cursor:pointer;">💳 LANJUT BAYAR QRIS</button>` : ''}
+    </div>`;
+  };
+
   body.innerHTML = `
     <div class="pcard">
       <h3>Profil</h3>
@@ -1338,16 +1377,218 @@ async function openUserPanel() {
       <h3>Riwayat Pembelian</h3>
       ${!trxData||!trxData.length
         ? '<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">Belum ada transaksi</div>'
-        : trxData.map(t=>`
-          <div class="trx">
-            <div class="trx-name">${t.account_name||'-'}</div>
-            <div class="trx-code">${t.trx_code||'-'}</div>
-            <div class="trx-sub">Rp${(t.price||0).toLocaleString('id')} • ${t.method?.toUpperCase()||'-'} • <span style="color:${t.status==='SUKSES'?'var(--success)':t.status==='DIBATALKAN'?'var(--danger)':'var(--gold)'}">${t.status}</span></div>
-          </div>`).join('')
+        : trxData.map(renderTrxCard).join('')
       }
     </div>
   `;
 }
+
+function openTrxDetail(t) {
+  const statusColor = t.status==='SUKSES' ? '#10b981' : t.status==='DIBATALKAN' ? '#ff4455' : '#ffd700';
+  const cred = t.status==='SUKSES' ? `
+    <div style="background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.25);border-radius:14px;padding:16px;margin-top:14px">
+      <div style="color:#00ff88;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:800;letter-spacing:2px;margin-bottom:10px">🔑 KREDENSIAL AKUN</div>
+      ${t.acc_email ? `<div style="margin-bottom:6px"><div style="font-size:10px;color:var(--muted)">Email</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--card);border-radius:8px;padding:8px 10px;margin-top:2px">
+          <span style="font-size:13px">${t.acc_email}</span>
+          <button onclick="navigator.clipboard.writeText('${t.acc_email}');notif('✅ Disalin!')" style="background:none;border:none;color:var(--accent2);cursor:pointer">📋</button>
+        </div></div>` : ''}
+      ${t.acc_pass ? `<div style="margin-bottom:6px"><div style="font-size:10px;color:var(--muted)">Password</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--card);border-radius:8px;padding:8px 10px;margin-top:2px">
+          <span style="font-size:13px">${t.acc_pass}</span>
+          <button onclick="navigator.clipboard.writeText('${t.acc_pass}');notif('✅ Disalin!')" style="background:none;border:none;color:var(--accent2);cursor:pointer">📋</button>
+        </div></div>` : ''}
+    </div>` : '';
+  document.getElementById('pay-sheet').innerHTML = `
+    <div class="handle"></div>
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:36px;margin-bottom:8px">${t.status==='SUKSES'?'✅':t.status==='DIBATALKAN'?'❌':'⏳'}</div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;color:${statusColor}">${t.status==='SUKSES'?'PEMBAYARAN SUKSES':t.status==='DIBATALKAN'?'DIBATALKAN':'MENUNGGU PEMBAYARAN'}</div>
+    </div>
+    <div style="background:var(--card2);border-radius:12px;padding:12px;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:6px">${t.account_name||'-'}</div>
+      <div class="trx-code">${t.trx_code||'-'}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">Rp${(t.price||0).toLocaleString('id')} • ${t.method?.toUpperCase()||'-'}</div>
+    </div>
+    ${cred}
+    ${t.status==='MENUNGGU'&&t.method==='qris'?`<button onclick="riwBayarQris('${t.trx_code}')" style="width:100%;margin-top:12px;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--accent),#1559d6);color:#fff;font-family:'Orbitron',sans-serif;font-style:italic;font-weight:800;font-size:12px;letter-spacing:1.5px;cursor:pointer;">💳 LANJUT BAYAR QRIS</button>`:''}
+    <button class="btn-main" style="margin-top:10px" onclick="document.getElementById('pay-ov').classList.remove('open')">TUTUP</button>
+  `;
+  document.getElementById('pay-ov').classList.add('open');
+}
+
+async function riwBayarQris(trxCode) {
+  document.getElementById('pay-ov').classList.remove('open');
+  const sheet = document.getElementById('pay-sheet');
+  sheet.innerHTML = `<div class="handle"></div><div style="text-align:center;padding:20px;color:var(--muted)"><div class="spin" style="margin:0 auto 10px"></div>Mengambil QR...</div>`;
+  document.getElementById('pay-ov').classList.add('open');
+  try {
+    const rows = await sb('orders?order_id=eq.'+trxCode+'&select=*');
+    const order = rows?.[0];
+    if (!order) { notif('❌ Order tidak ditemukan'); document.getElementById('pay-ov').classList.remove('open'); return; }
+    if (order.status !== 'pending') { notif('⚠️ Order sudah '+order.status); document.getElementById('pay-ov').classList.remove('open'); return; }
+    const expiresAt = order.expires_at ? new Date(order.expires_at) : null;
+    const sisaSec = expiresAt ? Math.max(0, Math.floor((expiresAt - Date.now()) / 1000)) : 0;
+    if (sisaSec <= 0) { notif('⚠️ QR sudah kadaluwarsa'); document.getElementById('pay-ov').classList.remove('open'); return; }
+    // Set buyAcc sementara untuk onQrisPaid
+    const trxRows = await sb('ff_transactions?trx_code=eq.'+trxCode+'&select=*');
+    const trx = trxRows?.[0];
+    if (trx) buyAcc = { id: trx.account_id, name: trx.account_name, price: trx.price };
+    _qrisOid = trxCode;
+    // Tampilkan fullscreen QRIS
+    showQrisFullscreen(order.qris_url, sisaSec, trx?.account_name||'-', order.amount||0, trxCode);
+    if (_qrisTmr) clearInterval(_qrisTmr);
+    if (_qrisPoll) clearInterval(_qrisPoll);
+    let paid = false;
+    let sisa = sisaSec;
+    _qrisTmr = setInterval(() => {
+      sisa--;
+      const el = document.getElementById('qr-tmr');
+      if (el) el.textContent = String(Math.floor(sisa/60)).padStart(2,'0')+':'+String(sisa%60).padStart(2,'0');
+      if (sisa <= 0) { clearInterval(_qrisTmr); clearInterval(_qrisPoll); document.getElementById('pay-ov').classList.remove('open'); notif('⚠️ QR kadaluwarsa'); }
+    }, 1000);
+    _qrisPoll = setInterval(async () => {
+      if (paid) { clearInterval(_qrisPoll); return; }
+      try {
+        const r = await sb('orders?order_id=eq.'+trxCode+'&select=status');
+        if (r?.[0]?.status === 'paid') { paid=true; clearInterval(_qrisPoll); clearInterval(_qrisTmr); await onQrisPaid(); }
+      } catch(e) {}
+    }, 4000);
+  } catch(e) { notif('❌ Error: '+e.message); document.getElementById('pay-ov').classList.remove('open'); }
+}
+
+// ============================================================
+// QRIS FULLSCREEN MODAL (seperti web apk mod)
+// ============================================================
+function showQrisFullscreen(qrisUrl, sisaSec, prodName, amount, orderId) {
+  const fmt = s => String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+  const M=['JAN','FEB','MAR','APR','MEI','JUN','JUL','AGU','SEP','OKT','NOV','DES'];
+  const now = new Date();
+  const p=n=>String(n).padStart(2,'0');
+  const timeStr = `${now.getDate()} ${M[now.getMonth()]} ${now.getFullYear()}, ${p(now.getHours())}.${p(now.getMinutes())}`;
+
+  // Buat/gunakan modal fullscreen
+  let modal = document.getElementById('qris-fs-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'qris-fs-modal';
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML = `
+    <div class="qfs-head">
+      <div class="qfs-brand">
+        <div class="qfs-logo">VPS</div>
+        <span>VINZ STORE</span>
+      </div>
+      <button class="qfs-close" onclick="closeQrisFs()">✕</button>
+    </div>
+    <div id="qfs-wait">
+      <div class="qfs-hero">
+        <div class="qfs-icon">💳</div>
+        <div class="qfs-title">QR PAYMENT</div>
+        <div class="qfs-sub">SCAN & BAYAR</div>
+      </div>
+      <div class="qfs-panel">
+        <div class="qfs-lbl">SISA WAKTU PEMBAYARAN</div>
+        <div class="qfs-timer-wrap">
+          <span id="qfs-min">${String(Math.floor(sisaSec/60)).padStart(2,'0')}</span>
+          <div class="qfs-colon">:</div>
+          <span id="qfs-sec">${String(sisaSec%60).padStart(2,'0')}</span>
+        </div>
+        <div class="qfs-lbl" style="margin-top:16px">SCAN QRIS UNTUK BAYAR</div>
+        <div class="qfs-qr-box"><img src="${qrisUrl}" id="qfs-img" /></div>
+        <div class="qfs-wait-txt"><span class="qfs-dot"></span>MENUNGGU PEMBAYARAN<br>OTOMATIS TERVERIFIKASI</div>
+      </div>
+      <div class="qfs-total-box">
+        <div class="qfs-total-lbl">TOTAL PEMBAYARAN</div>
+        <div class="qfs-total-amt">Rp ${Number(amount).toLocaleString('id-ID')}</div>
+      </div>
+      <div class="qfs-meta">
+        <div><div class="qfs-mk">TRX ID</div><div class="qfs-mv">#${orderId}</div></div>
+        <div style="text-align:right"><div class="qfs-mk">WAKTU</div><div class="qfs-mv">${timeStr}</div></div>
+      </div>
+      <div class="qfs-prod-card">
+        <div class="qfs-prod-emoji">🎮</div>
+        <div>
+          <div class="qfs-prod-name">${prodName}</div>
+          <div class="qfs-prod-sub">QRIS • 1X</div>
+        </div>
+      </div>
+    </div>
+    <div id="qfs-ok" style="display:none">
+      <div class="qfs-hero qfs-hero-ok">
+        <div class="qfs-icon">✓</div>
+        <div class="qfs-title">PAYMENT<br>SUCCESS</div>
+        <div class="qfs-sub">TRANSAKSI BERHASIL</div>
+      </div>
+      <div class="qfs-meta">
+        <div><div class="qfs-mk">TRX ID</div><div class="qfs-mv" id="qfs-ok-trx">#${orderId}</div></div>
+        <div style="text-align:right"><div class="qfs-mk">WAKTU</div><div class="qfs-mv" id="qfs-ok-time">${timeStr}</div></div>
+      </div>
+      <div class="qfs-prod-card" id="qfs-ok-prod">
+        <div class="qfs-prod-emoji">🎮</div>
+        <div>
+          <div class="qfs-prod-name">${prodName}</div>
+          <div class="qfs-prod-sub">QRIS • 1X</div>
+        </div>
+      </div>
+      <div class="qfs-key-box">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="qfs-key-lbl">🔑 KREDENSIAL AKUN</div>
+          <button onclick="qfsCopyKey()" class="qfs-copy-btn">📋 SALIN</button>
+        </div>
+        <div id="qfs-key-list">—</div>
+      </div>
+      <button class="qfs-done-btn" onclick="closeQrisFs()">SELESAI</button>
+    </div>
+  `;
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Push history agar swipe back tutup modal
+  if (!window._qfsPushed) { window._qfsPushed = true; history.pushState({qfsOpen:true},''); }
+}
+
+function closeQrisFs() {
+  const modal = document.getElementById('qris-fs-modal');
+  if (modal) modal.classList.remove('open');
+  document.body.style.overflow = '';
+  window._qfsPushed = false;
+  if (_qrisTmr) { clearInterval(_qrisTmr); _qrisTmr = null; }
+  if (_qrisPoll) { clearInterval(_qrisPoll); _qrisPoll = null; }
+  if (typeof openUserPanel === 'function') openUserPanel();
+}
+
+function showQrisSuccess(orderId, email, pass, secCode) {
+  document.getElementById('qfs-wait').style.display = 'none';
+  document.getElementById('qfs-ok').style.display = '';
+  const M=['JAN','FEB','MAR','APR','MEI','JUN','JUL','AGU','SEP','OKT','NOV','DES'];
+  const now = new Date();
+  const p=n=>String(n).padStart(2,'0');
+  document.getElementById('qfs-ok-time').textContent = `${now.getDate()} ${M[now.getMonth()]} ${now.getFullYear()}, ${p(now.getHours())}.${p(now.getMinutes())}`;
+  const keyList = document.getElementById('qfs-key-list');
+  if (keyList) {
+    let html = '';
+    if (email) html += `<div style="margin-bottom:6px"><div class="qfs-key-lbl" style="font-size:10px;margin-bottom:2px">Email</div><div class="qfs-key-val">${email}</div></div>`;
+    if (pass) html += `<div style="margin-bottom:6px"><div class="qfs-key-lbl" style="font-size:10px;margin-bottom:2px">Password</div><div class="qfs-key-val">${pass}</div></div>`;
+    if (secCode) html += `<div><div class="qfs-key-lbl" style="font-size:10px;margin-bottom:2px">Kode Keamanan</div><div class="qfs-key-val">${secCode}</div></div>`;
+    keyList.innerHTML = html || '<div style="color:#6a8cb5">Data akan segera tersedia</div>';
+    window._qfsKeyText = [email,pass,secCode].filter(Boolean).join('\n');
+  }
+}
+
+function qfsCopyKey() {
+  const text = window._qfsKeyText || '';
+  if (!text) return;
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(()=>notif('✅ Tersalin!'));
+  else { const a=document.createElement('textarea');a.value=text;document.body.appendChild(a);a.select();document.execCommand('copy');document.body.removeChild(a);notif('✅ Tersalin!'); }
+}
+
+// Back button closes QRIS fullscreen
+window.addEventListener('popstate', () => {
+  const modal = document.getElementById('qris-fs-modal');
+  if (modal && modal.classList.contains('open')) { closeQrisFs(); history.pushState({qfsOpen:false},''); }
+});
 
 // ============================================================
 // ADMIN PANEL
