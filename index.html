@@ -1221,10 +1221,10 @@ async function doQrisPayment() {
 
   let orderData;
   try {
-    const res = await fetch(WORKER_URL + '/create-qris', {
+    const res = await fetch(WORKER_URL + '/create-qris-ff', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
-      body: JSON.stringify({ amount, product_id: String(buyAcc.id), customer_name: user.name || user.email })
+      body: JSON.stringify({ amount, account_id: buyAcc.id, customer_name: user.name || user.email })
     });
     orderData = await res.json();
     if (!res.ok) throw new Error(orderData.error || 'Gagal buat QRIS');
@@ -1252,7 +1252,7 @@ async function doQrisPayment() {
     if (sisa <= 0) {
       clearInterval(_qrisTmr); clearInterval(_qrisPoll);
       closeQrisFs();
-      notif('⚠️ Waktu QRIS habis');
+      notif('⚠️ Waktu habis, akun dilepas. Silakan coba lagi.');
     }
   }, 1000);
 
